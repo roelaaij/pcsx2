@@ -1,3 +1,20 @@
+/*  LilyPad - Pad plugin for PS2 Emulator
+ *  Copyright (C) 2002-2014  PCSX2 Dev Team/ChickenLiver
+ *
+ *  PCSX2 is free software: you can redistribute it and/or modify it under the
+ *  terms of the GNU Lesser General Public License as published by the Free
+ *  Software Found- ation, either version 3 of the License, or (at your option)
+ *  any later version.
+ *
+ *  PCSX2 is distributed in the hope that it will be useful, but WITHOUT ANY
+ *  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ *  FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ *  details.
+ *
+ *  You should have received a copy of the GNU General Public License along
+ *  with PCSX2.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "Global.h"
 
 // For escape timer, so as not to break GSDX+DX9.
@@ -851,6 +868,16 @@ ExtraWndProcResult TitleHackWndProc(HWND hWndTop, UINT uMsg, WPARAM wParam, LPAR
 	return CONTINUE_BLISSFULLY;
 }
 
+// Useful sequence before changing into active/inactive state.
+// Handles hooking/unhooking of mouse and KB and also mouse cursor visibility.
+// towardsActive==true indicates we're gaining activity (on focus etc), false is for losing activity (on close, kill focus, etc).
+void PrepareActivityState(bool towardsActive) {
+	if (!towardsActive)
+		ReleaseModifierKeys();
+	activeWindow = towardsActive;
+	UpdateEnabledDevices();
+}
+
 // responsible for monitoring device addition/removal, focus changes, and viewport closures.
 ExtraWndProcResult StatusWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT *output) {
 	switch (uMsg) {
@@ -870,11 +897,8 @@ ExtraWndProcResult StatusWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 		case WM_ACTIVATE:
 			// Release any buttons PCSX2 may think are down when
 			// losing/gaining focus.
-			if (!wParam) {
-				ReleaseModifierKeys();
-			}
-			activeWindow = (LOWORD(wParam) != WA_INACTIVE);
-			UpdateEnabledDevices();
+			// Note - I never managed to see this case entered, but SET/KILLFOCUS are entered. - avih 2014-04-16
+			PrepareActivityState(LOWORD(wParam) != WA_INACTIVE);
 			break;
 		case WM_CLOSE:
 			if (config.closeHacks & 1) {
@@ -888,6 +912,12 @@ ExtraWndProcResult StatusWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 			break;
 		case WM_DESTROY:
 			QueueKeyEvent(VK_ESCAPE, KEYPRESS);
+			break;
+		case WM_KILLFOCUS:
+			PrepareActivityState(false);
+			break;
+		case WM_SETFOCUS:
+			PrepareActivityState(true);
 			break;
 		default:
 			break;
@@ -1369,6 +1399,19 @@ keyEvent* CALLBACK PADkeyEvent() {
 	static char altDown = 0;
 	static keyEvent ev;
 	if (!GetQueuedKeyEvent(&ev)) return 0;
+
+	if (miceEnabled && (ev.key == VK_ESCAPE || (int)ev.key == -2) && ev.evt == KEYPRESS) {
+		// Disable mouse/KB hooks on escape (before going into paused mode).
+		// This is a hack, since PADclose (which is called on pause) should enevtually also deactivate the
+		// mouse/kb capture. In practice, WindowsMessagingMouse::Deactivate is called from PADclose, but doesn't
+		// manage to release the mouse, maybe due to the thread from which it's called or some
+		// state or somehow being too late.
+		// This explicitly triggers inactivity (releasing mouse/kb hooks) before PCSX2 starts to close the plugins.
+		// Regardless, the mouse/kb hooks will get re-enabled on resume if required without need for further hacks.
+
+		PrepareActivityState(false);
+	}
+
 	if ((ev.key == VK_ESCAPE || (int)ev.key == -2) && ev.evt == KEYPRESS && config.escapeFullscreenHack) {
 		static int t;
 		if ((int)ev.key != -2 && IsWindowMaximized(hWndTop)) {

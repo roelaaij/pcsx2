@@ -9,7 +9,8 @@
 # Build the Replay Loaders     : -DBUILD_REPLAY_LOADERS=TRUE|FALSE
 # Use GLSL API(else NVIDIA_CG): -DGLSL_API=TRUE|FALSE
 # Use EGL (vs GLX)            : -DEGL_API=TRUE|FALSE
-# Use SDL2                    ; -DSDL2_API=TRUE|FALSE
+# Use SDL2                    : -DSDL2_API=TRUE|FALSE
+# Build all plugins           : -DEXTRA_PLUGINS=TRUE|FALSE
 
 ### GCC optimization options
 # control C flags             : -DUSER_CMAKE_C_FLAGS="cflags"
@@ -91,8 +92,11 @@ set(CMAKE_SHARED_LIBRARY_CXX_FLAGS "")
 # Set some default compiler flags
 #-------------------------------------------------------------------------------
 set(DEFAULT_WARNINGS "-Wno-write-strings -Wno-format -Wno-unused-parameter -Wno-unused-value -Wstrict-aliasing -Wno-unused-function -Wno-attributes -Wno-unused-result -Wno-missing-field-initializers -Wno-unused-local-typedefs -Wno-parentheses")
-set (HARDEING_OPT "-D_FORTIFY_SOURCE=2  -Wformat -Wformat-security")
+set(HARDEING_OPT "-D_FORTIFY_SOURCE=2  -Wformat -Wformat-security")
 set(DEFAULT_GCC_FLAG "-m32 -msse -msse2 -march=i686 -pthread ${DEFAULT_WARNINGS} ${HARDEING_OPT}")
+if(CMAKE_BUILD_TYPE MATCHES "Debug|Devel")
+    set(DEFAULT_GCC_FLAG "-g ${DEFAULT_GCC_FLAG}")
+endif()
 set(DEFAULT_CPP_FLAG "${DEFAULT_GCC_FLAG} -Wno-invalid-offsetof")
 
 #-------------------------------------------------------------------------------
@@ -208,3 +212,9 @@ if (NOT DEFINED XDG_STD)
     set(XDG_STD FALSE)
 endif (NOT DEFINED XDG_STD)
 
+#-------------------------------------------------------------------------------
+# Use only main plugin (faster compilation time)
+#-------------------------------------------------------------------------------
+if (NOT DEFINED EXTRA_PLUGINS)
+    set(EXTRA_PLUGINS FALSE)
+endif()

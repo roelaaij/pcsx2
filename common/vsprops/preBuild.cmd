@@ -29,6 +29,7 @@ set REV2=%REV3: =%
 set REV1=%REV2:-=%
 set REV=%REV1::=%
 
+git show -s
 if %ERRORLEVEL% NEQ 0 (
   echo Automatic version detection unavailable.
   echo If you want to have the version string print correctly,

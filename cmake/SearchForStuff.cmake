@@ -18,11 +18,11 @@ if(Linux)
             set(GTK2_INCLUDE_DIRS "${GDK_PIXBUF_INCLUDE_DIRS}" "${GTK2_INCLUDE_DIRS}")
             # Remove duplicates when cmake will be fixed
             list(REMOVE_DUPLICATES GTK2_INCLUDE_DIRS)
-        endif (GDK_PIXBUF_INCLUDE_DIRS)
-    endif(GTK2_FOUND)
+        endif()
+    endif()
 
     find_package(X11)
-endif(Linux)
+endif()
 
 ## Use cmake package to find module
 find_package(ALSA)
@@ -54,7 +54,7 @@ include(FindAio)
 ## Include cg because of zzogl-cg and zerogs
 #if(NOT GLSL_API)
 	include(FindCg)
-#endif(NOT GLSL_API)
+#endif()
 include(FindEGL)
 include(FindGLES2)
 include(FindGlew)
@@ -62,7 +62,6 @@ include(FindLibc)
 include(FindPortAudio)
 include(FindSoundTouch)
 include(FindSparseHash)
-include(FindSparseHash_NEW)
 
 # Note for include_directory: The order is important to avoid a mess between include file from your system and the one of pcsx2
 # If you include first 3rdparty, all 3rdpary include will have a higer priority...
@@ -81,12 +80,12 @@ include(FindSparseHash_NEW)
 if(Linux)
 	if(GTK2_FOUND)
 		include_directories(${GTK2_INCLUDE_DIRS})
-	endif(GTK2_FOUND)
+	endif()
 
 	if(X11_FOUND)
 		include_directories(${X11_INCLUDE_DIR})
-	endif(X11_FOUND)
-endif(Linux)
+	endif()
+endif()
 
 if(AIO_FOUND)
     include_directories(${AIO_INCLUDE_DIR})
@@ -94,15 +93,15 @@ endif()
 
 if(ALSA_FOUND)
 	include_directories(${ALSA_INCLUDE_DIRS})
-endif(ALSA_FOUND)
+endif()
 
 if(BZIP2_FOUND)
 	include_directories(${BZIP2_INCLUDE_DIR})
-endif(BZIP2_FOUND)
+endif()
 
 if(CG_FOUND)
 	include_directories(${CG_INCLUDE_DIRS})
-endif(CG_FOUND)
+endif()
 
 if (EGL_FOUND)
     include_directories(${EGL_INCLUDE_DIR})
@@ -110,11 +109,11 @@ endif()
 
 if(JPEG_FOUND)
 	include_directories(${JPEG_INCLUDE_DIR})
-endif(JPEG_FOUND)
+endif()
 
 if(GLEW_FOUND)
     include_directories(${GLEW_INCLUDE_DIR})
-endif(GLEW_FOUND)
+endif()
 
 if(GLESV2_FOUND)
     include_directories(${GLESV2_INCLUDE_DIR})
@@ -122,28 +121,23 @@ endif()
 
 if(OPENGL_FOUND)
 	include_directories(${OPENGL_INCLUDE_DIR})
-endif(OPENGL_FOUND)
+endif()
 
 if(PORTAUDIO_FOUND)
 	include_directories(${PORTAUDIO_INCLUDE_DIR})
-endif(PORTAUDIO_FOUND)
+endif()
 
 if(SDL_FOUND)
 	include_directories(${SDL_INCLUDE_DIR})
-endif(SDL_FOUND)
+endif()
 
 if(SOUNDTOUCH_FOUND)
 	include_directories(${SOUNDTOUCH_INCLUDE_DIR})
-endif(SOUNDTOUCH_FOUND)
+endif()
 
 if(SPARSEHASH_FOUND)
 	include_directories(${SPARSEHASH_INCLUDE_DIR})
-endif(SPARSEHASH_FOUND)
-if(SPARSEHASH_NEW_FOUND)
-    include_directories(${SPARSEHASH_NEW_INCLUDE_DIR})
-    # allow to build parts that depend on sparsehash
-    set(SPARSEHASH_FOUND TRUE)
-endif(SPARSEHASH_NEW_FOUND)
+endif()
 
 if(wxWidgets_FOUND)
     if(Linux)
@@ -164,7 +158,7 @@ if(wxWidgets_FOUND)
             endif (EXISTS "/usr/lib/wx")
             # Multiarch ubuntu/debian
             STRING(REGEX REPLACE "/usr/lib/x86_64-linux-gnu" "/usr/lib/i386-linux-gnu" wxWidgets_INCLUDE_DIRS "${wxWidgets_INCLUDE_DIRS}")
-        endif(CMAKE_SIZEOF_VOID_P MATCHES "8")
+        endif()
 
 		# Some people are trying to compile with wx 3.0 ...
 		### 3.0
@@ -179,11 +173,11 @@ if(wxWidgets_FOUND)
 			STRING(REGEX REPLACE "3\\.0" "2.8" wxWidgets_INCLUDE_DIRS "${wxWidgets_INCLUDE_DIRS}")
 			STRING(REGEX REPLACE "3\\.0" "2.8" wxWidgets_LIBRARIES "${wxWidgets_LIBRARIES}")
 		endif()
-    endif(Linux)
+    endif()
 
 	include(${wxWidgets_USE_FILE})
-endif(wxWidgets_FOUND)
+endif()
 
 if(ZLIB_FOUND)
 	include_directories(${ZLIB_INCLUDE_DIRS})
-endif(ZLIB_FOUND)
+endif()

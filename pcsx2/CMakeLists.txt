@@ -22,10 +22,6 @@ set(CommonFlags
     -std=c++0x
 	-pipe)
 
-if (SPARSEHASH_NEW_FOUND)
-    set(CommonFlags "${CommonFlags} -DSPARSEHASH_NEW_INCLUDE_DIR ")
-endif (SPARSEHASH_NEW_FOUND)
-
 # set warning flags
 set(DebugFlags
 	-W
@@ -235,13 +231,14 @@ set(pcsx2Headers
 
 # CDVD sources
 set(pcsx2CDVDSources
-    CDVD/BlockdumpFileReader.cpp
+	CDVD/BlockdumpFileReader.cpp
 	CDVD/CdRom.cpp
 	CDVD/CDVDaccess.cpp
 	CDVD/CDVD.cpp
 	CDVD/CDVDisoReader.cpp
-    CDVD/InputIsoFile.cpp
-    CDVD/OutputIsoFile.cpp
+	CDVD/InputIsoFile.cpp
+	CDVD/OutputIsoFile.cpp
+	CDVD/CompressedFileReader.cpp
 	CDVD/IsoFS/IsoFile.cpp
 	CDVD/IsoFS/IsoFSCDVD.cpp
 	CDVD/IsoFS/IsoFS.cpp
@@ -254,6 +251,7 @@ set(pcsx2CDVDHeaders
 	CDVD/CDVD.h
 	CDVD/CDVD_internal.h
 	CDVD/CDVDisoReader.h
+	CDVD/zlib_indexed.h
 	CDVD/IsoFileFormats.h
 	CDVD/IsoFS/IsoDirectory.h
 	CDVD/IsoFS/IsoFileDescriptor.h
@@ -684,10 +682,7 @@ foreach(res_file IN ITEMS
         ConfigIcon_Appearance ConfigIcon_Cpu ConfigIcon_Gamefixes ConfigIcon_MemoryCard
         ConfigIcon_Paths ConfigIcon_Plugins ConfigIcon_Speedhacks ConfigIcon_Video Breakpoint_Active Breakpoint_Inactive)
     add_custom_command(OUTPUT  "${res_bin}/${res_file}.h" COMMAND perl ${CMAKE_SOURCE_DIR}/linux_various/hex2h.pl "${res_src}/${res_file}.png" "${res_bin}/${res_file}" )
-endforeach(res_file IN ITEMS
-        AppIcon16 AppIcon32 AppIcon64 BackgroundLogo ButtonIcon_Camera
-        ConfigIcon_Appearance ConfigIcon_Cpu ConfigIcon_Gamefixes ConfigIcon_MemoryCard
-        ConfigIcon_Paths ConfigIcon_Plugins ConfigIcon_Speedhacks ConfigIcon_Video Breakpoint_Active Breakpoint_Inactive)
+endforeach()
 
 # Suppress all the system-specific predefined macros outside the reserved namespace.
 # Needed when stringifying macros.
